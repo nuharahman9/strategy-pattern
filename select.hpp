@@ -38,22 +38,24 @@ public:
     virtual bool select(const std::string& s) const = 0;
 };
 
-class Select_Contains: public Select_Column {
+class Select_Contains: public Select {
 protected: 	
    std::string name; 
+   int column; 
 public:  
-   Select_Contains(const Spreadsheet* sheet, const std::string& clnm, const std::string& nm) : Select_Column{sheet, clnm}  { 
+   Select_Contains(const Spreadsheet* sheet, const std::string& clnm, const std::string& nm)  { 
       name = nm;
+      column = sheet->get_column_by_name(clnm); 
    }
-//~Select_Contains()  
-   bool select(const std::string& s) const { 
-	 if (name.find(s) != std::string::npos) { 
-          return true; 
-        
-      }
-      return false; 	
-   }
+   
 
+   bool select(const Spreadsheet* sheet, int row) const { 
+    	 std::string s = sheet->cell_data(row, column); 
+	if (s.find(name) != std::string::npos) {
+           return true;  
+         }
+	return false; 
+  }
       
  };
 
@@ -66,9 +68,9 @@ public:
   }
   ~Select_Not() { 
      delete not1; 
-  } 
-  bool select(const Spreadsheet* sheet, int row) const { 
-       if (not1->select(sheet, row) == false) { 
+   } 
+  bool select(const Spreadsheet* sheet, int row) const override { 
+       if (!not1->select(sheet, row)) { 
              return true; 
         }
       return false; 
@@ -89,9 +91,11 @@ public:
       delete and2; 
    }
 
-   bool select(const Spreadsheet* sheet, int row) const { 
-      if (and1->select(sheet, row) && and2->select(sheet, row)) { 
+   bool select(const Spreadsheet* sheet, int row) const override { 
+      if (and2->select(sheet, row)) {
+        if (and1->select(sheet, row)) {  
          return true;        
+        }
       }
       return false; 
 
@@ -110,10 +114,10 @@ public:
 
   ~Select_Or() { 
      delete or1; 
-     delete or2; 
-  }
+      delete or2; 
+   }
 
-  bool select(const Spreadsheet* sheet, int row) const { 
+  bool select(const Spreadsheet* sheet, int row) const override { 
      if (or1->select(sheet, row) || or2->select(sheet, row)) { 
 	return true; 
       }
