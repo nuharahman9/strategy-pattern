@@ -50,7 +50,8 @@ public:
    
 
    bool select(const Spreadsheet* sheet, int row) const { 
-    	 std::string s = sheet->cell_data(row, column); 
+	if (column == -1) { return false;}     
+	 std::string s = sheet->cell_data(row, column); 
 	if (s.find(name) != std::string::npos) {
            return true;  
          }
