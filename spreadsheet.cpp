@@ -23,8 +23,31 @@ void Spreadsheet::clear()
     select = nullptr;
 }
 
-void Spreadsheet::set_column_names(const std::vector<std::string>& names)
+void Spreadsheet::print_selection(std::ostream& out) const
 {
+	if (select == nullptr)
+	{
+	for(int i = 0; i < this->data.size(); ++i) {
+		for(int j = 0; j < data.at(i).size(); ++j) {
+			out << data.at(i).at(j) << ' ';
+		}
+		out << std::endl;
+	}
+	}
+        else {
+	for(int i = 0; i < this->data.size(); ++i) {
+		for(int j = 0; j < data.at(i).size(); ++j) {
+			if (select->select(this, i)) {
+				out << data.at(i).at(j) << ' ';
+			}
+		}
+	}
+	}
+}
+	
+
+void Spreadsheet::set_column_names(const std::vector<std::string>& names)
+{   
     column_names=names;
 }
 
